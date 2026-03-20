@@ -1,0 +1,35 @@
+name: 打包macOS可执行文件
+
+on:
+  workflow_dispatch:  # 手动触发
+
+jobs:
+  build-macos:
+    name: 在macOS上打包
+    runs-on: macos-latest  # 使用GitHub提供的免费macOS虚拟机
+    steps:
+      - name: 下载你的代码
+        uses: actions/checkout@v4
+
+      - name: 设置Python环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 安装依赖库
+        run: |
+          pip install requests pandas openpyxl beautifulsoup4 selenium pyinstaller
+
+      - name: 用PyInstaller打包成单文件
+        run: |
+          pyinstaller --onefile yfb_spider.py  # 你的主文件名可能不是这个，请改成你的实际文件名
+
+      - name: 重命名生成的文件
+        run: |
+          mv dist/yfb_spider dist/yfb_spider_macos
+
+      - name: 上传打包好的文件（作为构建产物）
+        uses: actions/upload-artifact@v4
+        with:
+          name: yfb_spider_macos
+          path: dist/yfb_spider_macos
